@@ -5,11 +5,18 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     public float MoveSpeed = 5.0f;
+    public Vector2Int Cell { get{ return m_CellPosition;} }
     private bool m_IsMoving;
     private Vector3 m_MoveTarget;
     private BoardManager m_Board;
     private Vector2Int m_CellPosition;
     private bool m_IsGameOver;
+    private Animator m_Animator;
+
+    private void Awake()
+    {
+        m_Animator = GetComponent<Animator>();
+    }
 
     public void Init()
     {
@@ -41,6 +48,7 @@ public class PlayerController : MonoBehaviour
             m_IsMoving = true;
             m_MoveTarget = m_Board.CellToWorld(m_CellPosition);
         }
+        m_Animator.SetBool("Moving", m_IsMoving);
     }
 
     private void Update()
@@ -61,6 +69,7 @@ public class PlayerController : MonoBehaviour
             if (transform.position == m_MoveTarget)
             {
                 m_IsMoving = false;
+                m_Animator.SetBool("Moving", false);
                 var cellData = m_Board.GetCellData(m_CellPosition);
                 if (cellData.ContainedObject != null)
                 {
@@ -107,7 +116,10 @@ public class PlayerController : MonoBehaviour
                 else if (cellData.ContainedObject.PlayerWantsToEnter())
                 {
                     MoveTo(newCellTarget, false);
-                    //cellData.ContainedObject.PlayerEntered();
+                }
+                else
+                {
+                    m_Animator.SetTrigger("Attack");
                 }
             }
         }
