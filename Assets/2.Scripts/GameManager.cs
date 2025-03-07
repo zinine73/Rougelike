@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
@@ -8,8 +9,13 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public BoardManager BoardManager;
     public PlayerController PlayerController;
-    public TurnManager TurnManager { get; private set; }
     public UIDocument UIDoc;
+    public GameObject KeyPanel;
+    public TurnManager TurnManager { get; private set; }
+    public int Level {
+        get { return m_CurrentLevel; }
+        private set {}
+    }
 
     private VisualElement m_GameOverPanel;
     private Label m_GameOverMessage;
@@ -29,6 +35,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        KeyPanel.SetActive(true);
+#else
+        KeyPanel.SetActive(false);
+#endif
+
         TurnManager = new TurnManager();
         TurnManager.OnTick += OnTurnHappen;
         
@@ -40,16 +52,16 @@ public class GameManager : MonoBehaviour
 
     public void NewLevel()
     {
+        m_CurrentLevel++;
         BoardManager.Clean();
         BoardManager.Init();
         PlayerController.Spawn(BoardManager, new Vector2Int(1, 1));
-        m_CurrentLevel++;
     }
 
     public void StartNewGame()
     {
         m_CurrentLevel = 0;
-        m_FoodAmount = 20;
+        m_FoodAmount = 100;
         m_GameOverPanel.style.visibility = Visibility.Hidden;
         m_FoodLabel.text = $"Food : {m_FoodAmount:000}";
         

@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private Vector2Int m_CellPosition;
     private bool m_IsGameOver;
     private Animator m_Animator;
+    private Vector2Int newCellTarget;
+    private bool hasMoved;
 
     private void Awake()
     {
@@ -79,30 +81,33 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector2Int newCellTarget = m_CellPosition;
-        bool hasMoved = false;
+        newCellTarget = m_CellPosition;
+        hasMoved = false;
 
-        if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            newCellTarget.y += 1;
-            hasMoved = true;
+            AddTick();
+        }
+        else if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+        {
+            MoveUp();
         }
         else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
         {
-            newCellTarget.y -= 1;
-            hasMoved = true;
+            MoveDown();
         }
         else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
         {
-            newCellTarget.x += 1;
-            hasMoved = true;
+            MoveRight();
         }
         else if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
         {
-            newCellTarget.x -= 1;
-            hasMoved = true;
+            MoveLeft();
         }
+    }
 
+    private void UpdatePlayer()
+    {
         if (hasMoved)
         {
             BoardManager.CellData cellData = m_Board.GetCellData(newCellTarget);
@@ -122,6 +127,47 @@ public class PlayerController : MonoBehaviour
                     m_Animator.SetTrigger("Attack");
                 }
             }
+        }
+    }
+
+    public void MoveUp()
+    {
+        newCellTarget.y += 1;
+        hasMoved = true;
+        UpdatePlayer();
+    }
+
+    public void MoveDown()
+    {
+        newCellTarget.y -= 1;
+        hasMoved = true;
+        UpdatePlayer();
+    }
+
+    public void MoveLeft()
+    {
+        newCellTarget.x -= 1;
+        hasMoved = true;
+        UpdatePlayer();
+    }
+
+    public void MoveRight()
+    {
+        newCellTarget.x += 1;
+        hasMoved = true;
+        UpdatePlayer();
+    }
+
+    public void AddTick()
+    {
+        if (m_IsGameOver)
+        {
+            GameManager.Instance.StartNewGame();
+        }
+        else
+        {
+            hasMoved = true;
+            UpdatePlayer();
         }
     }
 }
